@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     }
 #endif
 
-    CLI::App app{"shadPS4 Emulator CLI"};
+    CLI::App app{"NBARevive Emulator CLI (based on shadPS4)"};
 
     // ---- CLI state ----
     std::optional<std::string> gamePath;
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 
     // ---- No-args behavior ----
     if (argc == 1) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "shadPS4",
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "NBARevive",
                                  "This is a CLI application. Please use the '-b' flag for Big "
                                  "Picture mode, or QTLauncher for a standalone GUI:\n"
                                  "https://github.com/shadps4-emu/shadps4-qtlauncher/releases",
