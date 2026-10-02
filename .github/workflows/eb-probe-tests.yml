@@ -1,0 +1,16 @@
+name: EB probe synthetic tests
+on:
+  push:
+    paths: [scripts/eb_probe.py, scripts/test_eb_probe.py, .github/workflows/eb-probe-tests.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s scripts -p test_eb_probe.py -v
