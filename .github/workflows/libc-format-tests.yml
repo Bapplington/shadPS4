@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: Copyright 2026 Bapplington
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: Libc formatting bounds
+on:
+  push:
+    paths:
+      - src/core/libraries/libc_internal/**
+      - tests/test_libc_format_bounds.cpp
+      - .github/workflows/libc-format-tests.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile with address and undefined behavior sanitizers
+        run: g++ -std=c++23 -g -fsanitize=address,undefined -Isrc tests/test_libc_format_bounds.cpp -o format-test
+      - run: ./format-test

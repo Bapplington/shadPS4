@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright 2026 Bapplington
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Read-only EB v3 payload probe. No automatic emulator mounting or extraction.
 

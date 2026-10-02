@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: Copyright 2026 Bapplington -->
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 # NBA Live 19 investigation
 
 This branch contains AI-assisted diagnostic tooling, reviewed against synthetic fixtures and locally owned game data. It is not a gameplay fix or a supported EB filesystem backend. No game payload, firmware, keys, save data or raw user logs are included.
@@ -18,5 +20,11 @@ Run `python scripts/eb_probe.py YOUR_PRIVATE_ARCHIVE data/common/config/renderbi
 ## Next evidence needed
 
 Use validated payloads in a disposable overlay and isolated profile, retain a baseline and compare actual loading. Trace guest archive-loader behavior and unresolved calls before implementing emulator APIs. Name-table presence alone does not establish missing content, a filesystem bug or the cause of a graphics stall. No gameplay fix has been validated, and no protocol evidence supports a community server implementation yet.
+
+The user repeated the loading route with 56 structurally validated graphics files and reported the same black/loading screen. This experiment did not resolve the stall.
+
+## First emulator implementation
+
+The fallback libc did not register vsnprintf (NID Q2V+iqvjgC0), which the local game imports. Its existing formatting helper also ignored the caller's size and formatted into a size-n temporary with unlimited writes before strcpy. This branch now registers guest va_list-based vsnprintf and bounds all formatter output, preserving the required-length return value even when truncated or called with zero capacity. Synthetic sanitizer tests check canaries, zero/one-byte capacities, long strings, register arguments and overflow-area arguments. These are concrete API and memory-safety fixes; whether the game executes this import on the stalled route and whether it affects gameplay remain unknown.
 
 Preserved original game and patch directories must remain untouched. Keep all copyrighted payloads and private runtime files outside Git.

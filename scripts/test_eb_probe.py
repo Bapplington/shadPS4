@@ -1,3 +1,4 @@
+# SPDX-FileCopyrightText: Copyright 2026 Bapplington
 # SPDX-License-Identifier: GPL-2.0-or-later
 import pathlib
 import struct
