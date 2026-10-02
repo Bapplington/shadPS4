@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: Copyright 2026 Bapplington
+# SPDX-License-Identifier: GPL-2.0-or-later
+name: NBARevive Windows
+on:
+  push:
+    branches: [nba-live-19-compat]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nbarevive-windows-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows:
+    runs-on: windows-2025-vs2026
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - name: Configure
+        run: cmake --fresh -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=ON -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl -DENABLE_UPDATER=OFF
+      - name: Build
+        run: cmake --build build --config Release --parallel $env:NUMBER_OF_PROCESSORS
+      - name: Package and record provenance
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path package | Out-Null
+          Copy-Item -LiteralPath build/shadPS4.exe -Destination package/NBARevive.exe
+          Copy-Item -LiteralPath LICENSES -Destination package -Recurse
+          $metadata = @{
+            repository = '${{ github.repository }}'
+            commit = '${{ github.sha }}'
+            runId = '${{ github.run_id }}'
+            coreSha256 = (Get-FileHash -LiteralPath package/NBARevive.exe).Hash
+            upstream = 'https://github.com/shadps4-emu/shadPS4'
+          }
+          $metadata | ConvertTo-Json | Set-Content -LiteralPath package/provenance.json -Encoding utf8
+          'NBARevive is a fork of shadPS4. Upstream credits and licenses are retained. Source: https://github.com/Bapplington/shadPS4/tree/${{ github.sha }}' | Set-Content -LiteralPath package/NOTICE.txt -Encoding utf8
+      - uses: actions/upload-artifact@v7
+        with:
+          name: NBARevive-Windows-${{ github.sha }}
+          path: package/
