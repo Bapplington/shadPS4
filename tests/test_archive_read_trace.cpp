@@ -9,8 +9,10 @@
 int main() {
     using namespace Core::FileSys;
     assert(IsTraceArchive("/app0/graphics_fix.big"));
+    assert(IsTraceArchive("/app0//graphics_fix.big"));
+    assert(IsTraceArchive("/hostapp///patch.big"));
     assert(IsTraceArchive("/hostapp/patch_post_fix_b.big"));
-    for (auto path : {"/savedata0/private.big", "/app0/data/name.big", "/app0/../save.big",
+    for (auto path : {"/savedata0/private.big", "/app0/data/name.big", "/app0//data/name.big", "/app0/../save.big",
                       "/app0/asset.bin", "/app0/x.big\n", "C:/secret.big", "/app0/.big"}) {
         assert(!IsTraceArchive(path));
     }

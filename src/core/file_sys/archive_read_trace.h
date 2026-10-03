@@ -15,6 +15,10 @@ inline bool IsTraceArchive(std::string_view path) {
     } else {
         return false;
     }
+    // The game uses /app0//archive.big; accept redundant mount separators only.
+    while (path.starts_with("/")) {
+        path.remove_prefix(1);
+    }
     return path.size() > 4 && path.ends_with(".big") &&
            path.find_first_of("/\\\r\n") == std::string_view::npos;
 }
