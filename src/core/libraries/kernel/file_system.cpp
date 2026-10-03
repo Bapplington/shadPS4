@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2025-2026 shadPS4 Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <cstdlib>
 #include <map>
 #include <ranges>
 #include <magic_enum/magic_enum.hpp>
@@ -22,6 +23,7 @@
 #include "core/file_sys/directories/normal_directory.h"
 #include "core/file_sys/directories/pfs_directory.h"
 #include "core/file_sys/fs.h"
+#include "core/file_sys/archive_read_trace.h"
 #include "core/libraries/kernel/file_system.h"
 #include "core/libraries/kernel/orbis_error.h"
 #include "core/libraries/kernel/posix_error.h"
@@ -354,7 +356,22 @@ s64 ReadFile(Core::FileSys::File* file, void* buf, u64 nbytes) {
     if (file_buf.capacity() < nbytes) {
         file_buf.reserve(nbytes);
     }
+    // Opt-in metadata only; preserve normal reads and their return values.
+    static const bool trace_enabled = [] {
+        const auto* value = std::getenv("NBAREVIVE_ARCHIVE_TRACE");
+        return value && std::string_view{value} == "1";
+    }();
+    static Core::FileSys::ArchiveTraceBudget trace_budget;
+    const auto trace_id = trace_budget.Next(trace_enabled, file->m_guest_name);
+    if (trace_id) {
+        LOG_INFO(Kernel_Fs, "NBAReviveArchiveRead begin id={} path={} offset={} requested={}",
+                 trace_id, file->m_guest_name, file->Tell(), nbytes);
+    }
     s64 bytes = file->Read(file_buf.data(), nbytes);
+    if (trace_id) {
+        LOG_INFO(Kernel_Fs, "NBAReviveArchiveRead end id={} returned={} position={}",
+                 trace_id, bytes, file->Tell());
+    }
     if (bytes < 0) {
         return bytes;
     }
